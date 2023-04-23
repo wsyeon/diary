@@ -1,12 +1,8 @@
 import React from 'react';
-import Register from './page/Register';
+import Router from './router/Router';
 
 const App = () => {
-  return (
-    <div>
-      <Register />
-    </div>
-  );
+  return <Router />
 };
 
 export default App;
