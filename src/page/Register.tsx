@@ -1,21 +1,50 @@
-import React, { ChangeEvent, useState } from 'react';
-import { firebaseAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from '../fbase';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
+import { firebaseAuth, createUserWithEmailAndPassword } from '../fbase';
+import * as S from '../styled';
+import { useNavigate } from 'react-router';
+
 
 const Register = () => {
     const [registerId, setRegisterId] = useState<string>("");
     const [registerPw, setRegisterPw] = useState<string>("");
+    const [registerPwCheck, setRegisterPwCheck] = useState<string>("");
     const [errMsg, setErrMsg] = useState<string>("");
+    const navigate = useNavigate();
 
-    const test = async ()=> {
-        try {
-            const createUser = await createUserWithEmailAndPassword(firebaseAuth, registerId, registerPw);
-
-            setRegisterId("");
+    const createUser = async ()=> {
+        setErrMsg("");
+        if (registerPw === registerPwCheck) {
+            try {
+                await createUserWithEmailAndPassword(firebaseAuth, registerId, registerPw);
+    
+                setRegisterId("");
+                setRegisterPw("");
+                setRegisterPwCheck("");
+                
+                navigate("/login");
+            } catch (e: any) {
+                switch (e.code) {
+                    case 'auth/weak-password':
+                        setErrMsg('비밀번호는 6자리 이상이어야 합니다');
+                        break;
+                    case 'auth/invalid-email':
+                        setErrMsg('잘못된 이메일 주소입니다');
+                        break;
+                    case 'auth/missing-password':
+                        setErrMsg("비밀번호를 입력해주세요");
+                        break;
+                    case 'auth/missing-email':
+                        setErrMsg("이메일을 입력해주세요");
+                        break;
+                    case 'auth/email-already-in-use':
+                        setErrMsg('이미 가입되어 있는 계정입니다');
+                        break;
+                }
+            }
+        } else {
+            alert("비밀번호가 다릅니다.");
             setRegisterPw("");
-
-            console.log(createUser);
-        } catch (e: any) {
-            setErrMsg(e.message);
+            setRegisterPwCheck("");
         }
     };
 
@@ -24,23 +53,37 @@ const Register = () => {
 
         if (name === "id") setRegisterId(value);
         if (name === "pw") setRegisterPw(value);
+        if (name === "pwCheck") setRegisterPwCheck(value);
+    };
+
+    const onSubmit = (e: FormEvent<HTMLFormElement>)=> {
+        e.preventDefault();
     }
 
     return (
-        <div>
-            <div>
-                {errMsg}
-                <div>
-                    <input type='text' name='id' onChange={onChange} value={registerId} />
-                </div>
-                <div>
-                    <input type='password' name='pw' onChange={onChange} value={registerPw} />
-                </div>
-                <div>
-                    <button onClick={test}>확인</button>
-                </div>
-            </div>
-        </div>
+        <S.RegisterWrapper>
+            <S.RegisterForm onSubmit={onSubmit}>
+                <S.RegisterFormWrapper>
+                    <h3>회원가입</h3>
+                    <S.RegisterInputWrapper>
+                        <label htmlFor="id">아아디</label>
+                        <S.RegisterInput type='text' id='id' name='id' onChange={onChange} value={registerId} />
+                    </S.RegisterInputWrapper>
+                    <S.RegisterInputWrapper>
+                        <label htmlFor="pw">비밀번호</label>
+                        <S.RegisterInput type='password'id='pw' name='pw' onChange={onChange} value={registerPw} />
+                    </S.RegisterInputWrapper>
+                    <S.RegisterInputWrapper>
+                        <label htmlFor="pwChek">비밀번호 확인</label>
+                        <S.RegisterInput type='password'id='pwCheck' name='pwCheck' onChange={onChange} value={registerPwCheck} />
+                    </S.RegisterInputWrapper>
+                    <S.ErrorMessage>{errMsg}</S.ErrorMessage>
+                    <S.RegisterBtnWrapper>
+                        <S.RegisterBtn onClick={createUser}>회원가입</S.RegisterBtn>
+                    </S.RegisterBtnWrapper>
+                </S.RegisterFormWrapper>
+            </S.RegisterForm>
+        </S.RegisterWrapper>
     );
 };
 
