@@ -5,6 +5,7 @@ import Diary from '../page/Diary';
 import Write from '../page/Write';
 import Login from '../page/Login';
 import Register from '../page/Register';
+import NotFound from '../page/NotFound';
 
 const Router = () => {
     return (
@@ -15,8 +16,9 @@ const Router = () => {
                     <Route path=':diaryId' element={<Diary />} />
                 </Route>
                 <Route path='/write' element={<Write />} />
-                <Route path='login' element={<Login />} />
-                <Route path='register' element={<Register />} />
+                <Route path='/login' element={<Login />} />
+                <Route path='/register' element={<Register />} />
+                <Route path="/*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>
     );
