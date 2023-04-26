@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { firebaseAuth, collection, getDocs, dbService } from '../fbase';
+import { Diary } from './Write';
+
+interface DiaryProps {
+    diaryInfo: Diary;
+}
 
 const Main = () => {
     const [test, setTest] = useState<string>("");
     const [nickName, setNickName] = useState<string | null | undefined>("");
+    const [diaryList, setDiaryList] = useState<DiaryProps[]>([]);
 
     useEffect(()=> {
         firebaseAuth.onAuthStateChanged(user=> {
@@ -17,16 +23,30 @@ const Main = () => {
         })
     }, []);
 
-    const onTest = async (): Promise<void>=> {
-        try {
+    useEffect(()=> {
+        const diaryInfoList = async (): Promise<void>=> {
             const querySnapshot = await getDocs(collection(dbService, "diary"));
-            querySnapshot.forEach((doc) => {
-              console.log(Object.values(doc.data()));
+            const data = querySnapshot.docs.map((doc)=> {
+                const diaryData: DiaryProps = {
+                    diaryInfo: {
+                        id: doc.id,
+                        title: doc.data().title,
+                        date: doc.data().date,
+                        text: doc.data().text,
+                        name: doc.data().name,
+                        email: doc.data().email,
+                        tags: doc.data().tags,
+                    },
+                };
+
+                return diaryData;
             });
-        } catch (e: any) {
-            console.log(e.code);
+
+            setDiaryList(data);
         }
-    };
+
+        diaryInfoList();
+    }, []);
 
     return (
         <div>
@@ -37,7 +57,16 @@ const Main = () => {
                 </>
             )}
             <div>
-                <button onClick={onTest}>test</button>
+                {diaryList.map((data, idx)=> (
+                    <div key={idx}>
+                        <div>
+                            제목: {data.diaryInfo.title}
+                        </div>
+                        <div>
+                            내용: {data.diaryInfo.text}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );
