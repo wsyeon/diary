@@ -3,7 +3,7 @@ import * as S from '../styled';
 import { dbService, firebaseAuth, setDoc, doc } from '../fbase';
 import uuid from 'react-uuid';
 
-interface Diary {
+export interface Diary {
     id: string;
     date: Date | string,
     text: string,
