@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, dbService, doc, deleteDoc, onSnapshot, query } from '../fbase';
+import { collection, dbService, doc, deleteDoc, onSnapshot, query } from '../fbase';
 import { Diary } from './Write';
 import { useNavigate } from 'react-router';
 import * as S from '../styled';
@@ -12,8 +12,8 @@ const Main = () => {
     const [diaryList, setDiaryList] = useState<DiaryProps[]>([]);
     const navigate = useNavigate();
 
-    useEffect(()=> {
-        const diaryInfoList = async (): Promise<void>=> {
+    useEffect((): void=> {
+        const diaryInfoList = async (): Promise<()=> void>=> {
             try {
                 const getDiaries = await query(collection(dbService, "diary"));
                 const unsubscribe = onSnapshot(getDiaries, (snapshot)=> {
@@ -34,9 +34,10 @@ const Main = () => {
                     });
                     setDiaryList(diariesData)
                 });
-                // return ()=> unsubscribe();
+                return ()=> unsubscribe();
             } catch (e: any) {
-                console.log(e);
+                console.log(e.message);
+                return Promise.reject(e); // 클린업 사용할거면 catch 부분에도 return 해야함
             }
         };
         diaryInfoList();
