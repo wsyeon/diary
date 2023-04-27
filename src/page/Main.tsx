@@ -1,74 +1,94 @@
 import React, { useEffect, useState } from 'react';
-import { firebaseAuth, collection, getDocs, dbService } from '../fbase';
+import { collection, getDocs, dbService, doc, deleteDoc, onSnapshot, query } from '../fbase';
 import { Diary } from './Write';
+import { useNavigate } from 'react-router';
+import * as S from '../styled';
 
 interface DiaryProps {
     diaryInfo: Diary;
 }
 
 const Main = () => {
-    const [test, setTest] = useState<string>("");
-    const [nickName, setNickName] = useState<string | null | undefined>("");
     const [diaryList, setDiaryList] = useState<DiaryProps[]>([]);
-
-    useEffect(()=> {
-        firebaseAuth.onAuthStateChanged(user=> {
-            if (user) {
-                setNickName(firebaseAuth.currentUser?.displayName);
-                setTest("logOut");
-            } else {
-                setTest("login");
-            }
-
-        })
-    }, []);
+    const navigate = useNavigate();
 
     useEffect(()=> {
         const diaryInfoList = async (): Promise<void>=> {
-            const querySnapshot = await getDocs(collection(dbService, "diary"));
-            const data = querySnapshot.docs.map((doc)=> {
-                const diaryData: DiaryProps = {
-                    diaryInfo: {
-                        id: doc.id,
-                        title: doc.data().title,
-                        date: doc.data().date,
-                        text: doc.data().text,
-                        name: doc.data().name,
-                        email: doc.data().email,
-                        tags: doc.data().tags,
-                    },
-                };
-
-                return diaryData;
-            });
-
-            setDiaryList(data);
-        }
-
+            try {
+                const getDiaries = await query(collection(dbService, "diary"));
+                const unsubscribe = onSnapshot(getDiaries, (snapshot)=> {
+                    const diariesData = snapshot.docs.map((doc)=> {
+                        const diaryData: DiaryProps = {
+                            diaryInfo: {
+                                id: doc.id,
+                                title: doc.data().title,
+                                date: doc.data().date,
+                                text: doc.data().text,
+                                name: doc.data().name,
+                                email: doc.data().email,
+                                tags: doc.data().tags,
+                                nowDate: doc.data().nowDate
+                            },
+                        };
+                        return diaryData;
+                    });
+                    setDiaryList(diariesData)
+                });
+                // return ()=> unsubscribe();
+            } catch (e: any) {
+                console.log(e);
+            }
+        };
         diaryInfoList();
     }, []);
 
+    const Test = (id: string): void=> {
+       navigate(`/user/${id}`, { state: { id: id } });
+    };
+
+    const goUpdate = (data: DiaryProps): void=> {
+        navigate(`/update/${data.diaryInfo.id}`,
+        { 
+            state: { 
+                id: data.diaryInfo.id,
+                updateTitle: data.diaryInfo.title,
+                updateTags: data.diaryInfo.tags,
+                updateText: data.diaryInfo.text,
+                updateDate: data.diaryInfo.date
+            },
+        });
+    };
+
     return (
-        <div>
-            {firebaseAuth.currentUser === null ? (<>로그인하세요</>) : (
-                <>
-                    환영합니다. {nickName}님
-                    <p>{test}</p>
-                </>
-            )}
-            <div>
-                {diaryList.map((data, idx)=> (
-                    <div key={idx}>
+        <S.MainWrapper>
+            {diaryList.sort((a, b)=> b.diaryInfo.nowDate - a.diaryInfo.nowDate).map((data, idx)=> (
+                <div key={idx} style={{ border: '1px solid blue', width: "700px", marginTop: '10px', display: "flex", justifyContent: "space-between" }}>
+                    <div style={{ width: "85%" }} onClick={()=> Test(data.diaryInfo.id)}>
+                        <div>
+                            날짜: {data.diaryInfo.date}
+                        </div>
                         <div>
                             제목: {data.diaryInfo.title}
                         </div>
-                        <div>
+                        <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             내용: {data.diaryInfo.text}
                         </div>
+                        <div>
+                            태그: <span>{data.diaryInfo.tags}</span>
+                        </div>
                     </div>
-                ))}
-            </div>
-        </div>
+                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around" }}>
+                        <div>
+                            <button onClick={()=> goUpdate(data)}>수정하기</button>
+                        </div>
+                        <div>
+                            <button onClick={async ()=> await deleteDoc(doc(dbService, "diary", data.diaryInfo.id)) }>삭제하기</button>
+                        </div>
+                    </div>
+                </div>
+            ))}
+            
+        </S.MainWrapper>
     );
 };
 

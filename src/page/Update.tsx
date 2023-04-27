@@ -1,26 +1,15 @@
 import React, { ChangeEvent, useState } from 'react';
 import * as S from '../styled';
-import { dbService, firebaseAuth, setDoc, doc } from '../fbase';
-import uuid from 'react-uuid';
-import { useNavigate } from 'react-router';
+import { dbService, firebaseAuth, doc, updateDoc } from '../fbase';
+import { useLocation, useNavigate } from 'react-router';
 
-export interface Diary {
-    id: string;
-    date: string,
-    text: string,
-    name?: string | null | undefined,
-    title: string,
-    email: string | null | undefined,
-    tags?: string[],
-    nowDate: number
-}
-
-const Write = () => {
+const Update = () => {
+    const location = useLocation();
+    const { id, updateTitle, updateTags, updateText, updateDate } = location.state;
     const [inputTags, setInputTags] = useState<string>("");
-    const [tags, setTags] = useState<string[]>([]);
-    const [title, setTitle] = useState<string>("");
-    const [text, setText] = useState<string>("");
-    const date = new Date();
+    const [tags, setTags] = useState<string[]>(updateTags);
+    const [title, setTitle] = useState<string>(updateTitle);
+    const [text, setText] = useState<string>(updateText);
     const navigate = useNavigate();
 
     const onChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void=> {
@@ -50,18 +39,16 @@ const Write = () => {
             return false;
         }
         try {
-            const newDiary: Diary = {
-                id: uuid(),
+
+            await updateDoc(doc(dbService, "diary", id), {
+                id: id,
                 name: firebaseAuth.currentUser?.displayName,
                 text: text,
                 title: title,
                 email: firebaseAuth.currentUser?.email,
-                date: date.toLocaleDateString(),
-                tags: tags,
-                nowDate: date.getTime()
-            };
-
-            await setDoc(doc(dbService, "diary", `${newDiary.id}`), newDiary);
+                date: updateDate,
+                tags: tags
+            });
             setTags([]);
             setText("");
             setTitle("");
@@ -69,7 +56,7 @@ const Write = () => {
 
             return true;
         } catch (e: any) {
-            console.log(e.code);
+            console.log(e.message);
 
             return false;
         }
@@ -81,7 +68,7 @@ const Write = () => {
     };
 
     return (
-        <S.WriteWrapper>
+        <S.UpdateWrapper>
             <S.DiaryWrapper>
                 <S.DiaryTitleWrapper>
                     <S.DiaryTitleInput placeholder='제목을 입력해주세요' name='title' type='text' onChange={onChange} value={title} /> 
@@ -100,12 +87,12 @@ const Write = () => {
                         ))}
                     </div>
                 </S.DiaryTagsWrapper>
-                <S.WriteBtnWrapper>
-                    <S.WriteBtn onClick={onWrite}>글 쓰기</S.WriteBtn>
-                </S.WriteBtnWrapper>
+                <S.UpdateBtnWrapper>
+                    <S.UpdateBtn onClick={onWrite}>수정 완료</S.UpdateBtn>
+                </S.UpdateBtnWrapper>
             </S.DiaryWrapper>
-        </S.WriteWrapper>
+        </S.UpdateWrapper>
     );
 };
 
-export default Write;
+export default Update;
