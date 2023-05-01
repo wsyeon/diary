@@ -4,3 +4,4 @@ export * from './global';
 export * from './write';
 export * from './main';
 export * from './update';
+export * from './header';
