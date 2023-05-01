@@ -13,6 +13,7 @@ export interface Diary {
     email: string | null | undefined,
     tags?: string[],
     nowDate: number
+    public: boolean
 }
 
 const Write = () => {
@@ -58,7 +59,8 @@ const Write = () => {
                 email: firebaseAuth.currentUser?.email,
                 date: date.toLocaleDateString(),
                 tags: tags,
-                nowDate: date.getTime()
+                nowDate: date.getTime(),
+                public: true
             };
 
             await setDoc(doc(dbService, "diary", `${newDiary.id}`), newDiary);
@@ -80,12 +82,29 @@ const Write = () => {
         setTags(delTag);
     };
 
+    const publicOrPrivate = (e: ChangeEvent<HTMLInputElement>)=> {
+        const { target: { value } } = e;
+        const checkboxs = document.getElementsByName("publicOrPrivate") as NodeListOf<HTMLInputElement>;
+
+        for (let i = 0; i < checkboxs.length; i++) {
+            if (checkboxs[i].value !== value) {
+                checkboxs[i].checked = false;
+            }
+        }
+    };
+
     return (
         <S.WriteWrapper>
             <S.DiaryWrapper>
                 <S.DiaryTitleWrapper>
                     <S.DiaryTitleInput placeholder='제목을 입력해주세요' name='title' type='text' onChange={onChange} value={title} /> 
                 </S.DiaryTitleWrapper>
+                <div>
+                    <label htmlFor="pulic">공개</label>
+                    <input onChange={publicOrPrivate} name='publicOrPrivate' value="public" id='public' type='checkbox' />
+                    <label style={{ marginLeft: "5px" }} htmlFor="private">비공개</label>
+                    <input onChange={publicOrPrivate} name='publicOrPrivate' value="private" id='private' type='checkbox' defaultChecked />
+                </div>
                 <S.DiaryTextWrapper>
                     <S.DiaryText rows={20} cols={40} placeholder='오늘의 기록 쓰기' name='text' onChange={onChange} value={text} />
                 </S.DiaryTextWrapper>
