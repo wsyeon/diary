@@ -28,7 +28,6 @@ const Main = () => {
                                 email: doc.data().email,
                                 tags: doc.data().tags,
                                 nowDate: doc.data().nowDate,
-                                public: true,
                             },
                         };
                         return diaryData;
@@ -64,7 +63,7 @@ const Main = () => {
     return (
         <S.MainWrapper>
             {diaryList.sort((a, b)=> b.diaryInfo.nowDate - a.diaryInfo.nowDate).map((data, idx)=> (
-                <div key={idx} style={ data.diaryInfo.public ? { border: '1px solid blue', width: "700px", marginTop: '10px', display: "flex", justifyContent: "space-between" } : { display: "none" }}>
+                <div key={idx} style={ firebaseAuth.currentUser !== null ? { border: '1px solid blue', width: "700px", marginTop: '10px', display: "flex", justifyContent: "space-between" } : { display: "none" }}>
                     <div style={{ width: "85%" }} onClick={()=> Test(data.diaryInfo.id)}>
                         <div>
                             날짜: {data.diaryInfo.date}

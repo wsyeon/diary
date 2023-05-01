@@ -26,8 +26,7 @@ const DetailDiary = () => {
                             name: doc.data().name,
                             email: doc.data().email,
                             tags: doc.data().tags,
-                            nowDate: doc.data().nowDate,
-                            public: true
+                            nowDate: doc.data().nowDate
                         },
                     };
                     return data;
