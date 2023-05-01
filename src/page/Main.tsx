@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, dbService, doc, deleteDoc, onSnapshot, query } from '../fbase';
+import { collection, dbService, doc, deleteDoc, onSnapshot, query, firebaseAuth } from '../fbase';
 import { Diary } from './Write';
 import { useNavigate } from 'react-router';
 import * as S from '../styled';
@@ -27,12 +27,13 @@ const Main = () => {
                                 name: doc.data().name,
                                 email: doc.data().email,
                                 tags: doc.data().tags,
-                                nowDate: doc.data().nowDate
+                                nowDate: doc.data().nowDate,
+                                public: true,
                             },
                         };
                         return diaryData;
                     });
-                    setDiaryList(diariesData)
+                    setDiaryList(diariesData);
                 });
                 return ()=> unsubscribe();
             } catch (e: any) {
@@ -44,7 +45,7 @@ const Main = () => {
     }, []);
 
     const Test = (id: string): void=> {
-       navigate(`/user/${id}`, { state: { id: id } });
+        navigate(`/user/${id}`, { state: { id: id } });
     };
 
     const goUpdate = (data: DiaryProps): void=> {
@@ -63,7 +64,7 @@ const Main = () => {
     return (
         <S.MainWrapper>
             {diaryList.sort((a, b)=> b.diaryInfo.nowDate - a.diaryInfo.nowDate).map((data, idx)=> (
-                <div key={idx} style={{ border: '1px solid blue', width: "700px", marginTop: '10px', display: "flex", justifyContent: "space-between" }}>
+                <div key={idx} style={ data.diaryInfo.public ? { border: '1px solid blue', width: "700px", marginTop: '10px', display: "flex", justifyContent: "space-between" } : { display: "none" }}>
                     <div style={{ width: "85%" }} onClick={()=> Test(data.diaryInfo.id)}>
                         <div>
                             날짜: {data.diaryInfo.date}
@@ -78,17 +79,18 @@ const Main = () => {
                             태그: <span>{data.diaryInfo.tags}</span>
                         </div>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around" }}>
-                        <div>
-                            <button onClick={()=> goUpdate(data)}>수정하기</button>
+                    {firebaseAuth.currentUser === null ? (<></>) : (
+                        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-around" }}>
+                            <div>
+                                <button onClick={()=> goUpdate(data)}>수정하기</button>
+                            </div>
+                            <div>
+                                <button onClick={async ()=> await deleteDoc(doc(dbService, "diary", data.diaryInfo.id)) }>삭제하기</button>
+                            </div>
                         </div>
-                        <div>
-                            <button onClick={async ()=> await deleteDoc(doc(dbService, "diary", data.diaryInfo.id)) }>삭제하기</button>
-                        </div>
-                    </div>
+                    )}
                 </div>
             ))}
-            
         </S.MainWrapper>
     );
 };
