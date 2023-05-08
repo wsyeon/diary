@@ -36,10 +36,10 @@ const Header = () => {
         <S.MenuWrapper>
             <div>
                 <S.Menus logInfo={true}>
-                    <Link to="/">메뉴 부분</Link>
+                    <Link to="/">홈</Link>
                 </S.Menus>
                 <S.Menus logInfo={true}>
-                    <div onClick={goWrite}>글</div>
+                    <div onClick={goWrite}>일기</div>
                 </S.Menus>
             </div>
             <div>

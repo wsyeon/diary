@@ -45,7 +45,7 @@ const Write = () => {
 
     const onWrite = async (): Promise<boolean>=> {
         if (title.trim() === "" || text.trim() === "" ) {
-            alert("글, 제목을 입력해주세요");
+            alert("제목, 내용을 입력해주세요");
 
             return false;
         }
