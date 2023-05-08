@@ -2,6 +2,7 @@ import React, { FormEvent, ChangeEvent, useState, useEffect } from 'react';
 import * as S from '../styled';
 import { useNavigate } from 'react-router';
 import { signInWithEmailAndPassword, firebaseAuth } from '../fbase';
+import { Link } from 'react-router-dom';
 
 const Login = () => {
     const [loginId, setLoginId] = useState<string>("");
@@ -67,6 +68,7 @@ const Login = () => {
                     <S.LoginBtnWrapper>
                         <S.LoginBtn onClick={loginUser}>로그인</S.LoginBtn>
                     </S.LoginBtnWrapper>
+                    <div>아직 계정이 없다면? <Link to="/register">회원가입 하기</Link></div>
                 </S.LoginFormWrapper>
             </S.LoginForm>
         </S.LoginWrapper>
