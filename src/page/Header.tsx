@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { firebaseAuth, signOut } from '../fbase';
 import * as S from '../styled';
@@ -16,9 +16,21 @@ const Header = () => {
         });
     };
 
-    useEffect(()=> {
-        setLogout(!firebaseAuth.currentUser);
-    }, [firebaseAuth.currentUser]);
+    useEffect(() => {
+        const unsubscribe = firebaseAuth.onAuthStateChanged((user) => {
+            setLogout(!user);
+        });
+        return unsubscribe;
+    }, []);
+
+    const goWrite = ()=> {
+        if (firebaseAuth.currentUser === null) {
+            alert("로그인 해주세요");
+        }
+        if (firebaseAuth.currentUser !== null) {
+            navigate("/write");
+        }
+    };
 
     return (
         <S.MenuWrapper>
@@ -26,7 +38,7 @@ const Header = () => {
                 <Link to="/">메뉴 부분</Link>
             </S.Menus>
             <S.Menus logInfo={true}>
-                <Link to="/write">글</Link>
+                <div onClick={goWrite}>글</div>
             </S.Menus>
             <S.Menus logInfo={logout}>
                 <Link to="/login">로그인</Link>
