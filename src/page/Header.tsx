@@ -34,21 +34,25 @@ const Header = () => {
 
     return (
         <S.MenuWrapper>
-            <S.Menus logInfo={true}>
-                <Link to="/">메뉴 부분</Link>
-            </S.Menus>
-            <S.Menus logInfo={true}>
-                <div onClick={goWrite}>글</div>
-            </S.Menus>
-            <S.Menus logInfo={logout}>
-                <Link to="/login">로그인</Link>
-            </S.Menus>
-            <S.Menus logInfo={logout}>
-                <Link to="/register">회원가입</Link>
-            </S.Menus>
-            <S.Menus logInfo={!logout} onClick={logOut}>
-                로그아웃
-            </S.Menus>
+            <div>
+                <S.Menus logInfo={true}>
+                    <Link to="/">메뉴 부분</Link>
+                </S.Menus>
+                <S.Menus logInfo={true}>
+                    <div onClick={goWrite}>글</div>
+                </S.Menus>
+            </div>
+            <div>
+                <S.Menus logInfo={logout}>
+                    <Link to="/login">로그인</Link>
+                </S.Menus>
+                <S.Menus logInfo={logout}>
+                    <Link to="/register">회원가입</Link>
+                </S.Menus>
+                <S.Menus logInfo={!logout} onClick={logOut}>
+                    로그아웃
+                </S.Menus>
+            </div>
         </S.MenuWrapper>
     );
 };
