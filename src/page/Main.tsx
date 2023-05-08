@@ -3,6 +3,7 @@ import { collection, dbService, doc, deleteDoc, onSnapshot, query, firebaseAuth 
 import { Diary } from './Write';
 import { useNavigate } from 'react-router';
 import * as S from '../styled';
+import { Link } from 'react-router-dom';
 
 interface DiaryProps {
     diaryInfo: Diary;
@@ -63,7 +64,7 @@ const Main = () => {
     return (
         <S.MainWrapper>
             {diaryList.sort((a, b)=> b.diaryInfo.nowDate - a.diaryInfo.nowDate).map((data, idx)=> (
-                <div key={idx} style={ firebaseAuth.currentUser !== null ? { border: '1px solid blue', width: "700px", marginTop: '10px', display: "flex", justifyContent: "space-between" } : { display: "none" }}>
+                <div key={idx} style={ (firebaseAuth.currentUser !== null) && (firebaseAuth.currentUser.email === data.diaryInfo.email) ? { border: '1px solid blue', width: "700px", marginTop: '10px', display: "flex", justifyContent: "space-between" } : { display: "none" }}>
                     <div style={{ width: "85%" }} onClick={()=> Test(data.diaryInfo.id)}>
                         <div>
                             날짜: {data.diaryInfo.date}
@@ -90,6 +91,12 @@ const Main = () => {
                     )}
                 </div>
             ))}
+            {firebaseAuth.currentUser === null && (
+                <div>
+                    로그인 후 이용해주세요<br />
+                    <Link to="/login">로그인 하러 가기</Link>
+                </div>
+            )}
         </S.MainWrapper>
     );
 };
