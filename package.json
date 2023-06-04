@@ -29,6 +29,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "tsc",
+    "build-react": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
