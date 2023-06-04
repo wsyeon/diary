@@ -38,7 +38,7 @@ const Write = () => {
             setInputTags("");
             return;
         };
-        const nextTags = [...tags, `#${inputTags}`];
+        const nextTags = [...tags, newTag];
         setTags(nextTags);
         setInputTags("");
     };
